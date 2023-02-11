@@ -4,7 +4,7 @@
 using namespace std;
 
 int main() {
-      const char *side_module;
+  const char *side_module;
 #ifdef __EMSCRIPTEN_PTHREADS__
   side_module = "side_module_mt.wasm";
 #else

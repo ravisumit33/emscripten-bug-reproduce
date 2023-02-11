@@ -1,14 +1,14 @@
 #include <iostream>
 
-static int my_create();
+int my_create();
 
 struct my_struct {
   int (*create)();
 };
 
-static const my_struct mstrct = {my_create};
+const my_struct mstrct = {my_create};
 
-static int my_create() {
+int my_create() {
   printf("Inside my create\n");
   return 6;
 }
