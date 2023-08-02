@@ -1,6 +1,48 @@
 cmake_minimum_required(VERSION 3.20.1)
+project(test)
 
-project(emscripten)
+set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
+set(CMAKE_CXX_STANDARD 17)
 
-add_subdirectory(${CMAKE_SOURCE_DIR}/NoThread)
-add_subdirectory(${CMAKE_SOURCE_DIR}/Thread)
+option(DYN_LINK "Build with dynamic linking" OFF)
+option(BUILD_DEBUG "Debug" OFF)
+
+set(EMSCRIPTEN_OPTIONS -fwasm-exceptions -O0)
+set(EMSCRIPTEN_COMPILE_OPTIONS)
+set(EMSCRIPTEN_LINK_OPTIONS --emit-symbol-map -sSPLIT_MODULE)
+set(OUT_EXT ".js")
+
+if(BUILD_DEBUG)
+  set(EMSCRIPTEN_OPTIONS ${EMSCRIPTEN_OPTIONS} -g)
+endif()
+
+set(COMPILE_OPTIONS ${EMSCRIPTEN_OPTIONS} ${EMSCRIPTEN_COMPILE_OPTIONS})
+set(LINK_OPTIONS ${EMSCRIPTEN_OPTIONS} ${EMSCRIPTEN_LINK_OPTIONS})
+
+if(DYN_LINK)
+  add_executable(side-module ${CMAKE_SOURCE_DIR}/c.cpp)
+  target_include_directories(side-module PRIVATE ${CMAKE_SOURCE_DIR})
+  target_compile_options(side-module PRIVATE ${COMPILE_OPTIONS} -sSIDE_MODULE=2)
+  target_link_options(side-module PRIVATE ${LINK_OPTIONS} -sSIDE_MODULE=2
+                      -sEXPORTED_FUNCTIONS=_fun4)
+  set_target_properties(side-module PROPERTIES SUFFIX ".wasm")
+endif()
+
+set(SRC ${CMAKE_SOURCE_DIR}/a.cpp ${CMAKE_SOURCE_DIR}/b.cpp)
+if(NOT DYN_LINK)
+  set(SRC ${SRC} ${CMAKE_SOURCE_DIR}/c.cpp)
+endif()
+add_executable(test ${SRC})
+target_include_directories(test PRIVATE ${CMAKE_SOURCE_DIR})
+if(DYN_LINK)
+  set(COMPILE_OPTIONS ${COMPILE_OPTIONS} -sMAIN_MODULE=2)
+  set(LINK_OPTIONS ${LINK_OPTIONS} -sMAIN_MODULE=2 -sINITIAL_TABLE=700
+                   ${CMAKE_BINARY_DIR}/side-module.wasm)
+  add_dependencies(test side-module)
+endif()
+target_compile_options(test PRIVATE ${COMPILE_OPTIONS})
+set(LINK_OPTIONS ${LINK_OPTIONS}
+    -sEXPORTED_FUNCTIONS=_pmodule,_smodule,_main,_malloc,_free)
+target_link_options(test PRIVATE ${LINK_OPTIONS})
+set_target_properties(test PROPERTIES SUFFIX ${OUT_EXT})
+em_link_pre_js(test ${CMAKE_SOURCE_DIR}/prejs.js)

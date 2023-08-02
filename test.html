@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Module splitting</title>
+  </head>
+  <body>
+    <h1>Demo</h1>
+    <p>Wasm split</p>
+
+    <label for="runTypes">Choose run type:</label>
+
+    <select name="runTypes" id="runTypes" onchange="setRunType(this.value)">
+      <option value="profile">Profile run</option>
+      <option value="Execute">After split run</option>
+    </select><br /><br />
+
+    <div id="profileBtn" style="display: block;">
+      <button id="buttonCp">Collect profile</button><br /><br />
+    </div>
+    <div id="functionBtns" style="display: none;">
+      <button id="buttonP">Call primary function</button><br /><br />
+      <button id="buttonS">Call split function</button><br /><br />
+    </div>
+
+    <script>
+      function setRunType(runType) {
+        switch (runType) {
+          case "profile":
+            document.getElementById("profileBtn").style.display = "block";
+            document.getElementById("functionBtns").style.display = "none";
+            break;
+          case "Execute":
+            document.getElementById("profileBtn").style.display = "none";
+            document.getElementById("functionBtns").style.display = "block";
+            break;
+        }
+      }
+      let myWorker = new Worker("test.js");
+      myWorker.onmessage = function (e) {
+        console.log("Message received from worker");
+        console.log(e.data);
+        const { data } = e;
+        const { type } = data;
+        switch (type) {
+          case "profile":
+            const { file } = data;
+            const a = document.createElement("a");
+            a.href = URL.createObjectURL(file);
+            a.download = 'profile.data';
+            a.click();
+            break;
+        }
+      };
+      document.getElementById("buttonCp").addEventListener("click", function () {
+        myWorker.postMessage({ type: "collectProfile" });
+      });
+      document.getElementById("buttonP").addEventListener("click", function () {
+        myWorker.postMessage({ type: "pmodule" });
+      });
+      document.getElementById("buttonS").addEventListener("click", function () {
+        myWorker.postMessage({ type: "smodule" });
+      });
+    </script>
+  </body>
+</html>
