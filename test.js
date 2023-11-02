@@ -11,28 +11,33 @@ const collectProfile = () => {
     wasmExports.__write_profile(bufferPtr, lenProfile);
     const m2 = new Uint8Array(wasmMemory.buffer);
     const m3 = m2.slice(bufferPtr, bufferPtr + lenProfile);
-    const file = new Blob([m3.buffer], { type: 'application/octet-stream' });
+    const file = new Blob([m3.buffer], { type: "application/octet-stream" });
     _free(bufferPtr);
     postMessage({ type: "profile", file });
   }
 };
 
 onmessage = (e) => {
-  console.log(e.data);
+  console.log("Message recieved on worker: ", e.data);
   const { type } = e.data;
-  switch (type) {
-    case "pmodule": {
-      console.log(Module._pmodule(1));
-      break;
+  try {
+    switch (type) {
+      case "pmodule": {
+        console.log(Module._pmodule(1));
+        break;
+      }
+      case "smodule": {
+        console.log(Module._smodule(5));
+        break;
+      }
+      case "collectProfile": {
+        console.log(Module._pmodule(1));
+        collectProfile();
+        break;
+      }
     }
-    case "smodule": {
-      console.log(Module._smodule(5));
-      break;
-    }
-    case "collectProfile": {
-      console.log(Module._pmodule(1));
-      collectProfile();
-      break;
-    }
+  } catch (e) {
+    console.error(e.message, e.stack);
+    console.log(e.stack);
   }
 };

@@ -6,10 +6,15 @@ set(CMAKE_CXX_STANDARD 17)
 
 option(DYN_LINK "Build with dynamic linking" OFF)
 option(BUILD_DEBUG "Debug" OFF)
+option(SPLIT_MODULE "Split module" OFF)
 
-set(EMSCRIPTEN_OPTIONS -fwasm-exceptions -O0)
+set(EMSCRIPTEN_OPTIONS -fwasm-exceptions -O1)
 set(EMSCRIPTEN_COMPILE_OPTIONS)
-set(EMSCRIPTEN_LINK_OPTIONS --emit-symbol-map -sSPLIT_MODULE)
+set(EMSCRIPTEN_LINK_OPTIONS --emit-symbol-map -sEXCEPTION_STACK_TRACES=1)
+if(SPLIT_MODULE)
+  set(EMSCRIPTEN_LINK_OPTIONS ${EMSCRIPTEN_LINK_OPTIONS} -sSPLIT_MODULE=1)
+endif()
+
 set(OUT_EXT ".js")
 
 if(BUILD_DEBUG)
@@ -36,13 +41,16 @@ add_executable(test ${SRC})
 target_include_directories(test PRIVATE ${CMAKE_SOURCE_DIR})
 if(DYN_LINK)
   set(COMPILE_OPTIONS ${COMPILE_OPTIONS} -sMAIN_MODULE=2)
-  set(LINK_OPTIONS ${LINK_OPTIONS} -sMAIN_MODULE=2 -sINITIAL_TABLE=700
+  set(LINK_OPTIONS ${LINK_OPTIONS} -sMAIN_MODULE=2
                    ${CMAKE_BINARY_DIR}/side-module.wasm)
+  if(SPLIT_MODULE)
+    set(LINK_OPTIONS ${LINK_OPTIONS} -sINITIAL_TABLE=700)
+  endif()
   add_dependencies(test side-module)
 endif()
 target_compile_options(test PRIVATE ${COMPILE_OPTIONS})
 set(LINK_OPTIONS ${LINK_OPTIONS}
-    -sEXPORTED_FUNCTIONS=_pmodule,_smodule,_main,_malloc,_free)
+                 -sEXPORTED_FUNCTIONS=_pmodule,_smodule,_main,_malloc,_free)
 target_link_options(test PRIVATE ${LINK_OPTIONS})
 set_target_properties(test PROPERTIES SUFFIX ${OUT_EXT})
 em_link_pre_js(test ${CMAKE_SOURCE_DIR}/prejs.js)
