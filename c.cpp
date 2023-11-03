@@ -9,7 +9,6 @@ struct my_struct {
 };
 
 int EMSCRIPTEN_KEEPALIVE fun4(int a, int b) {
-  throw "intentional";
   printf("%d %d\n", a, b);
   return fun5(a, b);
 }
