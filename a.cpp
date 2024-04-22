@@ -1,6 +1,7 @@
 #include "b.h"
 // #include <cstdio>
 #include <emscripten.h>
+#include <thread>
 
 int fun1(int x) {
   int y = x;
@@ -25,4 +26,8 @@ int EMSCRIPTEN_KEEPALIVE pmodule(int x) {
 int EMSCRIPTEN_KEEPALIVE smodule(int y) { return fun2(y); }
 }
 
-int main() { return 0; }
+int main() {
+    std::thread t(smodule, 2);
+    t.join();
+    return 0;
+}

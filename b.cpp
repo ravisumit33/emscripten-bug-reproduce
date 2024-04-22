@@ -18,7 +18,7 @@ int fun2(int a) {
   }
   A a1(2);
 #ifdef DYN_LINK_RUNTIME
-  void *dll_handle = dlopen("side-module.wasm", RTLD_NOW);
+  void *dll_handle = dlopen("x.wasm", RTLD_NOW);
   if (!dll_handle) {
     std::string dlopen_error{"Cannot load library: "};
     dlopen_error += dlerror();

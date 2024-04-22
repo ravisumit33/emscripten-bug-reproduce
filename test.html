@@ -51,6 +51,10 @@
             break;
         }
       };
+      myWorker.onerror = function (e) {
+        console.log("Error received from worker");
+        console.log(e);
+      };
       document.getElementById("buttonCp").addEventListener("click", function () {
         myWorker.postMessage({ type: "collectProfile" });
       });

@@ -1,5 +1,18 @@
 self.Module = {};
-self.Module["locateFile"] = (path, prefix) => prefix + "build/" + path;
+self.Module["locateFile"] = (path, prefix) => {
+  return prefix + "build/" + path;
+};
+Module.mainScriptUrlOrBlob = "http://localhost:8000/" + "build/test.js";
+Module.preInit = () => {
+        FS.createLazyFile(
+        "/",
+        "x.wasm",
+        locateFile("side-module.wasm"),
+        true,
+        false
+      );
+}
+
 importScripts("build/test.js");
 
 const collectProfile = () => {
