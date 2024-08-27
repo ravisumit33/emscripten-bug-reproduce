@@ -27,7 +27,12 @@ int EMSCRIPTEN_KEEPALIVE smodule(int y) { return fun2(y); }
 }
 
 int main() {
-    std::thread t(smodule, 2);
-    t.join();
-    return 0;
+
+#ifdef __EMSCRIPTEN_PTHREADS__
+  std::thread t(smodule, 2);
+  t.join();
+#else
+  smodule(2);
+#endif
+  return 0;
 }

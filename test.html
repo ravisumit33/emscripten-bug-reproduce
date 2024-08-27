@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
   <head>
     <title>Module splitting</title>
@@ -11,13 +11,13 @@
 
     <select name="runTypes" id="runTypes" onchange="setRunType(this.value)">
       <option value="profile">Profile run</option>
-      <option value="Execute">After split run</option>
-    </select><br /><br />
+      <option value="Execute">After split run</option></select
+    ><br /><br />
 
-    <div id="profileBtn" style="display: block;">
+    <div id="profileBtn" style="display: block">
       <button id="buttonCp">Collect profile</button><br /><br />
     </div>
-    <div id="functionBtns" style="display: none;">
+    <div id="functionBtns" style="display: none">
       <button id="buttonP">Call primary function</button><br /><br />
       <button id="buttonS">Call split function</button><br /><br />
     </div>
@@ -46,7 +46,7 @@
             const { file } = data;
             const a = document.createElement("a");
             a.href = URL.createObjectURL(file);
-            a.download = 'profile.data';
+            a.download = "profile.data";
             a.click();
             break;
         }
@@ -55,9 +55,11 @@
         console.log("Error received from worker");
         console.log(e);
       };
-      document.getElementById("buttonCp").addEventListener("click", function () {
-        myWorker.postMessage({ type: "collectProfile" });
-      });
+      document
+        .getElementById("buttonCp")
+        .addEventListener("click", function () {
+          myWorker.postMessage({ type: "collectProfile" });
+        });
       document.getElementById("buttonP").addEventListener("click", function () {
         myWorker.postMessage({ type: "pmodule" });
       });

@@ -4,14 +4,8 @@ self.Module["locateFile"] = (path, prefix) => {
 };
 Module.mainScriptUrlOrBlob = "http://localhost:8000/" + "build/test.js";
 Module.preInit = () => {
-        FS.createLazyFile(
-        "/",
-        "x.wasm",
-        locateFile("side-module.wasm"),
-        true,
-        false
-      );
-}
+  FS.createLazyFile("/", "x.wasm", locateFile("side-module.wasm"), true, false);
+};
 
 importScripts("build/test.js");
 
