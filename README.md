@@ -1,13 +1,36 @@
 # Test repo for wasm
 
-## Build Options
+## Prerequisites
+
+- Python: 3.10
+- [Poetry](https://python-poetry.org/): 1.8.3
+- CMake: 3.29.2
+- [emsdk](https://emscripten.org/docs/getting_started/downloads.html#installation-instructions-using-the-emsdk-recommended): 3.1.56
+
+## Setup
+
+- Install poetry
+
+  ```sh
+  pip install poetry
+  ```
+
+- Install dependencies
+
+  ```sh
+  poetry install
+  ```
+
+## Build
+
+### Build Options
 
 - Dynamic linking: `DYN_LINK`, default is `OFF`
 - Debug build: `BUILD_DEBUG`, default is `OFF`
 - Split module: `SPLIT_MODULE`, default is `OFF`
 - Enable threads: `ENABLE_THREADS`, default is `OFF`
 
-## Build steps
+### Build steps
 
 - Build project using below command
 
@@ -19,10 +42,10 @@
   cd ..
   ```
 
-- Run http server
+- Run test server
 
   ```sh
-  python -m http.server
+  poetry run server
   ```
 
 - If `SPLIT_MODULE` was `ON`, do below steps:
@@ -41,5 +64,6 @@
     --profile=profile.data -o1 test.wasm -o2 test.deferred.wasm -v
     ```
 
-  - In `wasm-split` args, add `-g` if `BUILD_DEBUG` was `ON` and
-    `--initial-table=650` if `DYN_LINK` was `ON`
+    - Conditional arguments for wasm-split:
+      - `-g` if `BUILD_DEBUG` was `ON`
+      - `--initial-table=650` if `DYN_LINK` was `ON`

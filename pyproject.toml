@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "emscripten-bug-reproduce"
+version = "0.0.0"
+description = ""
+authors = ["Sumit Kumar <ravi.sumit33@gmail.com>"]
+license = "MIT"
+readme = "README.md"
+packages = [{ include = "server.py" }]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+Flask = "^3.0.3"
+
+[tool.poetry.scripts]
+server = "server:main"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
