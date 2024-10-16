@@ -34,7 +34,7 @@ onmessage = (e) => {
         break;
       }
       case "smodule": {
-        console.log(Module._smodule(5));
+        console.log(Module._smodule(5, 17));
         break;
       }
       case "collectProfile": {
@@ -44,7 +44,7 @@ onmessage = (e) => {
       }
     }
   } catch (e) {
-    console.error(e.message, e.stack);
+    console.error(e.message);
     console.log(e.stack);
   }
 };

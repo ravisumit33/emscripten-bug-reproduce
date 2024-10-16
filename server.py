@@ -15,8 +15,19 @@ def serve_static_files(filename):
 @app.route("/")
 def serve_index():
     response = make_response(send_from_directory(os.getcwd(), "test.html"))
+    return response
+
+
+# Apply custom headers to every response
+@app.after_request
+def apply_custom_headers(response):
+    # Custom headers for Cross-Origin policies
     response.headers["Cross-Origin-Embedder-Policy"] = "require-corp"
     response.headers["Cross-Origin-Opener-Policy"] = "same-origin"
+    # Disable caching for every response
+    response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
+    response.headers["Pragma"] = "no-cache"
+    response.headers["Expires"] = "0"
     return response
 
 

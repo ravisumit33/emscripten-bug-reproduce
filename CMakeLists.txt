@@ -12,7 +12,7 @@ option(ENABLE_THREADS "Enable threads" OFF)
 set(DYN_LINK_TYPE "runtime")
 set(OUT_EXT ".js")
 
-set(EMSCRIPTEN_OPTIONS -fwasm-exceptions -O1)
+set(EMSCRIPTEN_OPTIONS -fwasm-exceptions -g -fsanitize=address,undefined)
 if(ENABLE_THREADS)
   set(EMSCRIPTEN_OPTIONS ${EMSCRIPTEN_OPTIONS} -pthread)
 endif()
@@ -22,7 +22,13 @@ endif()
 
 set(EMSCRIPTEN_COMPILE_OPTIONS)
 
-set(EMSCRIPTEN_LINK_OPTIONS --emit-symbol-map -sEXCEPTION_STACK_TRACES=1)
+set(EMSCRIPTEN_LINK_OPTIONS
+    --emit-symbol-map
+    -sEXCEPTION_STACK_TRACES=1
+    -sFORCE_FILESYSTEM=1 # So that Module.preInit doesn't throw in static linking build
+    -sALLOW_MEMORY_GROWTH
+    -sNO_EXIT_RUNTIME
+)
 if(ENABLE_THREADS)
   set(EMSCRIPTEN_LINK_OPTIONS ${EMSCRIPTEN_LINK_OPTIONS} -sPROXY_TO_PTHREAD=1)
 endif()
@@ -68,12 +74,12 @@ if(DYN_LINK)
       _free)
   endif()
   add_dependencies(test side-module)
+  list(JOIN MAIN_MODULE_EXPORTED_FUNCTIONS "," MAIN_MODULE_EXPORTED_FUNCTIONS)
+  set(LINK_OPTIONS ${LINK_OPTIONS}
+  -sEXPORTED_FUNCTIONS=${MAIN_MODULE_EXPORTED_FUNCTIONS})
 endif()
 
 target_compile_options(test PRIVATE ${COMPILE_OPTIONS})
-list(JOIN MAIN_MODULE_EXPORTED_FUNCTIONS "," MAIN_MODULE_EXPORTED_FUNCTIONS)
-set(LINK_OPTIONS ${LINK_OPTIONS}
-  -sEXPORTED_FUNCTIONS=${MAIN_MODULE_EXPORTED_FUNCTIONS})
 target_link_options(test PRIVATE ${LINK_OPTIONS})
 set_target_properties(test PROPERTIES SUFFIX ${OUT_EXT})
 em_link_pre_js(test ${CMAKE_SOURCE_DIR}/prejs.js)
